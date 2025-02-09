@@ -10,6 +10,8 @@ namespace MSVenta.Seguridad.Models
         public string Fullname { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public string email { get; set; }
+        public int telefono { get; set; }
         public ICollection<RolPermisoUsuario> RolPermisoUsuarios { get; set; }
     }
 }

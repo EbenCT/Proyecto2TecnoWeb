@@ -16,7 +16,7 @@ namespace MSVenta.Seguridad.Services
         {
             _context = context;
         }
-        
+
 
         public async Task<IEnumerable<UsuarioDTO>> GetAllUsuarios()
         {
@@ -34,6 +34,8 @@ namespace MSVenta.Seguridad.Services
                 UserId = u.UserId,
                 Fullname = u.Fullname,
                 Username = u.Username,
+                Email = u.email,      // Agregado
+                Telefono = u.telefono, // Agregado
                 Roles = u.RolPermisoUsuarios
                     .GroupBy(rpu => new { rpu.RolPermiso.Rol.ID_Rol, rpu.RolPermiso.Rol.Nombre_Rol })
                     .Select(group => new RolDTO
@@ -50,11 +52,8 @@ namespace MSVenta.Seguridad.Services
             });
         }
 
-
-
         public async Task<UsuarioDTO> GetUsuarioById(int id)
         {
-            //return await _context.Usuarios.FindAsync(id);
             var usuario = await _context.Usuarios
                 .Where(u => u.UserId == id)
                 .Include(u => u.RolPermisoUsuarios)
@@ -68,7 +67,6 @@ namespace MSVenta.Seguridad.Services
             if (usuario == null)
                 return null;
 
-            // Agrupar los roles y permisos en memoria
             var roles = usuario.RolPermisoUsuarios
                                 .GroupBy(rpu => new { rpu.RolPermiso.Rol.ID_Rol, rpu.RolPermiso.Rol.Nombre_Rol })
                                 .Select(group => new RolDTO
@@ -88,11 +86,12 @@ namespace MSVenta.Seguridad.Services
                 UserId = usuario.UserId,
                 Fullname = usuario.Fullname,
                 Username = usuario.Username,
+                Email = usuario.email,      // Agregado
+                Telefono = usuario.telefono, // Agregado
                 Roles = roles
             };
-
-
         }
+
 
         public async Task<Usuario> CreateUsuario(Usuario usuario)
         {
