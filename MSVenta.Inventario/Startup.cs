@@ -55,6 +55,15 @@ namespace MSVenta.Venta
             {
                 client.BaseAddress = new Uri("http://localhost:5002/");
             });
+            services.AddHttpClient<IProductoHttpClient, ProductoHttpClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5002/");
+            });
+            services.AddLogging(builder =>
+            {
+                builder.AddConsole();
+                builder.AddDebug();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
