@@ -51,6 +51,10 @@ namespace MSVenta.Venta
                 // URL del microservicio de Ventas
                 client.BaseAddress = new Uri("http://localhost:5002/"); // Ajusta el puerto según tu configuración
             });
+            services.AddHttpClient<ICategoriaHttpClient, CategoriaHttpClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5002/");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

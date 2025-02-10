@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MSVenta.Venta.Models;
 using MSVenta.Venta.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace MSVenta.Venta.Controllers
@@ -47,16 +48,51 @@ namespace MSVenta.Venta.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, Marca marca)
         {
-            if (id != marca.id) return BadRequest();
-            await _marcaService.UpdateMarca(marca);
-            return NoContent();
+            try
+            {
+                if (id != marca.id) return BadRequest();
+
+                // Actualizar en Inventario
+                await _marcaService.UpdateMarca(marca);
+
+                // Sincronizar con Ventas
+                var syncSuccess = await _marcaHttpClient.UpdateMarcaAsync(id, marca);
+
+                if (!syncSuccess)
+                {
+                    return StatusCode(500, new { Message = "La marca se actualizó en Inventario pero no se pudo sincronizar con Ventas" });
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error interno al actualizar la marca" });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _marcaService.DeleteMarca(id);
-            return NoContent();
+            try
+            {
+                // Eliminar en Inventario
+                await _marcaService.DeleteMarca(id);
+
+                // Sincronizar con Ventas
+                var syncSuccess = await _marcaHttpClient.DeleteMarcaAsync(id);
+
+                if (!syncSuccess)
+                {
+                    return StatusCode(500, new { Message = "La marca se eliminó en Inventario pero no se pudo sincronizar con Ventas" });
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error interno al eliminar la marca" });
+            }
         }
     }
 }
