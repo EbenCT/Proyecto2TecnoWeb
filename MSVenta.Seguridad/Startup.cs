@@ -41,7 +41,9 @@ namespace MSVenta.Seguridad
             services.AddScoped<IRolPermisoUsuarioService, RolPermisoUsuarioService>();
             services.AddScoped<IRolService, RolService>();
             services.AddScoped<IUsuarioService, UsuarioService>();
-            
+            services.AddScoped<IPageVisitService, PageVisitService>();
+
+
             services.Configure<JwtOptions>(Configuration.GetSection("jwt"));
         }
 

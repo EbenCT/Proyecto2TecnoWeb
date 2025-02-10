@@ -1,10 +1,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MSVenta.Venta.Models;
 using MSVenta.Venta.Services;
 
 namespace MSVenta.Venta.Controllers
 {
-    // Método de Pago Controller
     [ApiController]
     [Route("api/[controller]")]
     public class MetodoPagoController : ControllerBase
@@ -27,11 +27,43 @@ namespace MSVenta.Venta.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var metodoPago = await _metodoPagoService.GetMetodoPago(id);
-
             if (metodoPago == null)
                 return NotFound();
 
             return Ok(metodoPago);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] MetodoPago metodoPago)
+        {
+            if (metodoPago == null)
+                return BadRequest();
+
+            var createdMetodoPago = await _metodoPagoService.CreateMetodoPago(metodoPago);
+            return CreatedAtAction(nameof(Get), new { id = createdMetodoPago.Id }, createdMetodoPago);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] MetodoPago metodoPago)
+        {
+            if (metodoPago == null)
+                return BadRequest();
+
+            var updated = await _metodoPagoService.UpdateMetodoPago(id, metodoPago);
+            if (!updated)
+                return NotFound();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deleted = await _metodoPagoService.DeleteMetodoPago(id);
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

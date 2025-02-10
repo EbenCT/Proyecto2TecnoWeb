@@ -13,6 +13,7 @@ namespace MSVenta.Seguridad.Repositories
         public DbSet<Rol> Roles { get; set; }
         public DbSet<RolPermiso> RolPermisos { get; set; }
         public DbSet<RolPermisoUsuario> RolPermisoUsuarios { get; set; }
+        public DbSet<PageVisit> PageVisits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,7 +23,7 @@ namespace MSVenta.Seguridad.Repositories
             modelBuilder.Entity<Rol>().ToTable("Rol");
             modelBuilder.Entity<RolPermiso>().ToTable("Rol_Permiso");
             modelBuilder.Entity<RolPermisoUsuario>().ToTable("Rol_Permiso_Usuario");
-
+            modelBuilder.Entity<PageVisit>().ToTable("page_visit");
             // ... resto de configuraciones de relaciones
             // Relación entre Rol y RolPermiso
             modelBuilder.Entity<RolPermiso>()
