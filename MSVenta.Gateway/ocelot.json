@@ -38,7 +38,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/usuario/{id}",
-      "UpstreamHttpMethod": [ "Delete", "Get" ],
+      "UpstreamHttpMethod": [ "Delete", "Get", "Put" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "SECURITY-TOKEN",
         "AllowedScopes": []
@@ -70,7 +70,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/roles/{id}",
-      "UpstreamHttpMethod": [ "Delete", "Get" ],
+      "UpstreamHttpMethod": [ "Delete", "Get", "Put" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "SECURITY-TOKEN",
         "AllowedScopes": []
@@ -118,7 +118,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/rolpermisos/{id}",
-      "UpstreamHttpMethod": [ "Delete", "Get" ],
+      "UpstreamHttpMethod": [ "Delete", "Get", "Put" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "SECURITY-TOKEN",
         "AllowedScopes": []
@@ -214,7 +214,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/venta/{id}",
-      "UpstreamHttpMethod": [ "Delete", "Get" ],
+      "UpstreamHttpMethod": [ "Delete", "Get", "Put" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "SECURITY-TOKEN",
         "AllowedScopes": []
@@ -246,7 +246,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/detalleventa/{id}",
-      "UpstreamHttpMethod": [ "Delete", "Get" ],
+      "UpstreamHttpMethod": [ "Delete", "Get", "Put" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "SECURITY-TOKEN",
         "AllowedScopes": []
@@ -294,7 +294,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/cliente/{id}",
-      "UpstreamHttpMethod": [ "Delete", "PUT", "Get" ],
+      "UpstreamHttpMethod": [ "Delete", "Put", "Get" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "SECURITY-TOKEN",
         "AllowedScopes": []
