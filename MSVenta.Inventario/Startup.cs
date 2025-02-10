@@ -46,7 +46,11 @@ namespace MSVenta.Venta
 
             services.AddProxyHttp();
             services.AddScoped<IUsuarioService, UsuarioService>();
-
+            services.AddHttpClient<IMarcaHttpClient, MarcaHttpClient>(client =>
+            {
+                // URL del microservicio de Ventas
+                client.BaseAddress = new Uri("http://localhost:5002/"); // Ajusta el puerto según tu configuración
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

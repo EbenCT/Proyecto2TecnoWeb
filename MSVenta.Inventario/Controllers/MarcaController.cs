@@ -10,8 +10,14 @@ namespace MSVenta.Venta.Controllers
     public class MarcaController : ControllerBase
     {
         private readonly IMarcaService _marcaService;
-
-        public MarcaController(IMarcaService marcaService) => _marcaService = marcaService;
+        private readonly IMarcaHttpClient _marcaHttpClient;
+        public MarcaController(
+            IMarcaService marcaService,
+            IMarcaHttpClient marcaHttpClient)
+        {
+            _marcaService = marcaService;
+            _marcaHttpClient = marcaHttpClient;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _marcaService.GetAllMarcas());
@@ -22,7 +28,19 @@ namespace MSVenta.Venta.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Marca marca)
         {
+            // Primero creamos la marca en el microservicio de Inventario
             await _marcaService.CreateMarca(marca);
+
+            // Luego sincronizamos con el microservicio de Ventas
+            var syncSuccess = await _marcaHttpClient.SyncMarcaAsync(marca);
+
+            if (!syncSuccess)
+            {
+                // Aquí podrías implementar un mecanismo de compensación si la sincronización falla
+                // Por ejemplo, registrar el error, intentar nuevamente, o revertir la operación
+                return StatusCode(500, new { Message = "La marca se creó en Inventario pero no se pudo sincronizar con Ventas" });
+            }
+
             return CreatedAtAction(nameof(Get), new { id = marca.id }, marca);
         }
 
