@@ -10,10 +10,14 @@ namespace MSVenta.Venta.Services
     public class AjusteInventarioService
     {
         private readonly ContextDatabase _context;
+        private readonly IProductoAlmacenHttpClient _productoAlmacenHttpClient;
 
-        public AjusteInventarioService(ContextDatabase context)
+        public AjusteInventarioService(
+            ContextDatabase context,
+            IProductoAlmacenHttpClient productoAlmacenHttpClient)
         {
             _context = context;
+            _productoAlmacenHttpClient = productoAlmacenHttpClient;
         }
 
         public async Task<AjusteInventario> CrearAjusteInventarioAsync(AjusteInventario ajusteInventario, List<DetalleAjusteDTO> detalles)
@@ -52,6 +56,17 @@ namespace MSVenta.Venta.Services
 
                     _context.DetallesAjuste.Add(detalleAjuste);
                     productoAlmacen.stock += cantidadAjuste;
+                    // Synchronize with Sales microservice
+                    var syncSuccess = await _productoAlmacenHttpClient.UpdateProductoAlmacenAsync(
+                        productoAlmacen.id,
+                        productoAlmacen
+                    );
+
+                    if (!syncSuccess)
+                    {
+                        await transaction.RollbackAsync();
+                        throw new Exception($"No se pudo sincronizar el stock para ProductoAlmacen {productoAlmacen.id}");
+                    }
                 }
 
                 await _context.SaveChangesAsync();

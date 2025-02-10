@@ -42,7 +42,6 @@ namespace MSVenta.Venta.Controllers
         }
 
         [HttpPost]
-        [HttpPost]
         public async Task<IActionResult> Create(ProductoAlmacen productoAlmacen)
         {
             try
