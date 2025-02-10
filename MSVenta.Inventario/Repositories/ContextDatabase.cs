@@ -44,16 +44,16 @@ namespace MSVenta.Venta.Repositories
             modelBuilder.Entity<ProductoAlmacen>()
                 .HasOne(pa => pa.Producto)
                 .WithMany()
-                .HasForeignKey(pa => pa.id_producto);
+                .HasForeignKey(pa => pa.ProductoId);
 
             modelBuilder.Entity<ProductoAlmacen>(entity =>
             {
                 entity.ToTable("producto_almacen");
 
-                entity.Property(pa => pa.id_producto)
+                entity.Property(pa => pa.ProductoId)
                       .HasColumnName("id_producto");
 
-                entity.Property(pa => pa.id_almacen)
+                entity.Property(pa => pa.AlmacenId)
                       .HasColumnName("id_almacen");  // 👈 Asegúrate de que coincida con la DB
 
                 entity.Property(pa => pa.stock)
@@ -62,11 +62,11 @@ namespace MSVenta.Venta.Repositories
                 // Relaciones
                 entity.HasOne(pa => pa.Producto)
                       .WithMany()
-                      .HasForeignKey(pa => pa.id_producto);
+                      .HasForeignKey(pa => pa.ProductoId);
 
                 entity.HasOne(pa => pa.Almacen)
                       .WithMany()
-                      .HasForeignKey(pa => pa.id_almacen);
+                      .HasForeignKey(pa => pa.AlmacenId);
             });
                         
             modelBuilder.Entity<AjusteInventario>(entity =>

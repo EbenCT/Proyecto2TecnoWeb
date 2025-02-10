@@ -43,8 +43,8 @@ namespace MSVenta.Venta.Services
             var existingProductoAlmacen = await _context.ProductosAlmacenes.FindAsync(productoAlmacen.id);
             if (existingProductoAlmacen == null) return false;
 
-            existingProductoAlmacen.id_producto = productoAlmacen.id_producto;
-            existingProductoAlmacen.id_almacen = productoAlmacen.id_almacen;
+            existingProductoAlmacen.ProductoId = productoAlmacen.ProductoId;
+            existingProductoAlmacen.AlmacenId  = productoAlmacen.AlmacenId;
             existingProductoAlmacen.stock = productoAlmacen.stock;
 
             await _context.SaveChangesAsync();

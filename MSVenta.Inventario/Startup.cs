@@ -63,6 +63,10 @@ namespace MSVenta.Venta
             {
                 client.BaseAddress = new Uri("http://localhost:5002/");
             });
+            services.AddHttpClient<IProductoAlmacenHttpClient, ProductoAlmacenHttpClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5002/"); // Ajusta el puerto según tu configuración
+            });
             services.AddLogging(builder =>
             {
                 builder.AddConsole();

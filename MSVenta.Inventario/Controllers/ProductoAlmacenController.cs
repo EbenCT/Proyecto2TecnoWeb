@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MSVenta.Venta.Models;
 using MSVenta.Venta.Services;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,10 +13,17 @@ namespace MSVenta.Venta.Controllers
     public class ProductoAlmacenController : Controller
     {
         private readonly ProductoAlmacenService _productoAlmacenService;
+        private readonly IProductoAlmacenHttpClient _productoAlmacenHttpClient;
+        private readonly ILogger<ProductoAlmacenController> _logger;
 
-        public ProductoAlmacenController(ProductoAlmacenService productoAlmacenService)
+        public ProductoAlmacenController(
+            ProductoAlmacenService productoAlmacenService,
+            IProductoAlmacenHttpClient productoAlmacenHttpClient,
+            ILogger<ProductoAlmacenController> logger)
         {
             _productoAlmacenService = productoAlmacenService;
+            _productoAlmacenHttpClient = productoAlmacenHttpClient;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -33,10 +42,42 @@ namespace MSVenta.Venta.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ProductoAlmacen>> Create(ProductoAlmacen productoAlmacen)
+        [HttpPost]
+        public async Task<IActionResult> Create(ProductoAlmacen productoAlmacen)
         {
-            var createdProductoAlmacen = await _productoAlmacenService.AddAsync(productoAlmacen);
-            return CreatedAtAction(nameof(GetById), new { id = createdProductoAlmacen.id }, createdProductoAlmacen);
+            try
+            {
+                // Crear en Inventario
+                await _productoAlmacenService.AddAsync(productoAlmacen);
+
+                // Sincronizar con Ventas
+                var (syncSuccess, errorMessage) = await _productoAlmacenHttpClient.SyncProductoAlmacenAsync(productoAlmacen);
+                if (!syncSuccess)
+                {
+                    // Rollback de la creación en Inventario
+                    await _productoAlmacenService.DeleteAsync(productoAlmacen.id);
+
+                    return StatusCode(500, new
+                    {
+                        Message = "Error al sincronizar la relación ProductoAlmacen con el servicio de Ventas",
+                        Details = errorMessage,
+                        Id= productoAlmacen.id,
+                        ProductoId = productoAlmacen.ProductoId,
+                        AlmacenId = productoAlmacen.AlmacenId
+                    });
+                }
+
+                return CreatedAtAction(nameof(GetById), new { id = productoAlmacen.id }, productoAlmacen);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error al crear ProductoAlmacen: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    Message = "Error al crear la relación ProductoAlmacen",
+                    Details = ex.Message
+                });
+            }
         }
 
         [HttpPut("{id}")]
@@ -45,9 +86,24 @@ namespace MSVenta.Venta.Controllers
             if (id != productoAlmacen.id)
                 return BadRequest("ID mismatch");
 
+            // Actualizar en Inventario
             var updated = await _productoAlmacenService.UpdateAsync(productoAlmacen);
             if (!updated)
                 return NotFound();
+
+            // Sincronizar con Ventas
+            var syncSuccess = await _productoAlmacenHttpClient.UpdateProductoAlmacenAsync(
+                id,
+                productoAlmacen
+            );
+
+            if (!syncSuccess)
+            {
+                return StatusCode(500, new
+                {
+                    Message = "ProductoAlmacen se actualizó en Inventario pero no se pudo sincronizar con Ventas"
+                });
+            }
 
             return NoContent();
         }
@@ -58,7 +114,18 @@ namespace MSVenta.Venta.Controllers
             var deleted = await _productoAlmacenService.DeleteAsync(id);
             if (!deleted)
                 return NotFound();
+            // Sincronizar con Ventas
+            var syncSuccess = await _productoAlmacenHttpClient.DeleteProductoAlmacenAsync(
+                id
+            );
 
+            if (!syncSuccess)
+            {
+                return StatusCode(500, new
+                {
+                    Message = "ProductoAlmacen se elimino en Inventario pero no se pudo sincronizar con Ventas"
+                });
+            }
             return NoContent();
         }
         public IActionResult Index()
