@@ -59,6 +59,10 @@ namespace MSVenta.Venta
             {
                 client.BaseAddress = new Uri("http://localhost:5002/");
             });
+            services.AddHttpClient<IAlmacenHttpClient, AlmacenHttpClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5002/");
+            });
             services.AddLogging(builder =>
             {
                 builder.AddConsole();
